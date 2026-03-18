@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Waichaeo — Care & Share</title>
+
+<!-- ── PWA ── -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1ab5c0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Waichaeo">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png">
+<link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128.png">
+
+<!-- ── Leaflet ── -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- ── Fonts ── -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── RESET ── */
+:root {
+  --teal: #1ab5c0; --teal-dark: #128f98;
+  --dark: #1a1a2e; --text: #333;
+  --muted: #888; --bg: #f8f9fa;
+  --white: #fff; --border: #eef0f3;
+  --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; background:#fff; }
+body {
+  font-family:'DM Sans','Noto Sans Thai',sans-serif;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+
+/* ── SCREENS ── */
+.screen { position:absolute; inset:0; display:flex; flex-direction:column; background:var(--bg); transition:transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.35s; }
+.screen.hidden   { transform:translateX(100%); opacity:0; pointer-events:none; }
+.screen.slide-left { transform:translateX(-40%); opacity:0; pointer-events:none; }
+
+/* ── STATUS BAR ── */
+.status-bar {
+  background:var(--white);
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 24px 6px; font-size:15px; font-weight:700;
+  flex-shrink:0; z-index:100;
+}
+.status-icons { display:flex; gap:5px; align-items:center; }
+.status-icons svg { width:16px; height:16px; }
+
+/* ──────────────────────
+   SCREEN 1 — SIGN IN
+────────────────────── */
+#screenSignin {
+  background:var(--white);
+  align-items:center;
+  justify-content:center;
+  padding:0 28px 40px;
+}
+.logo-wrap { display:flex; flex-direction:column; align-items:center; margin-bottom:32px; }
+.logo-icon {
+  width:110px; height:110px; border-radius:28px;
+  background:linear-gradient(135deg,#e0f7fa,#b2ebf2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:52px; margin-bottom:14px;
+  box-shadow:0 8px 32px rgba(26,181,192,0.2);
+}
+.logo-name { font-size:22px; font-weight:800; color:var(--teal); letter-spacing:2px; }
+.logo-sub  { font-size:11px; color:#f4a338; letter-spacing:3px; font-weight:600; margin-top:2px; }
+.signin-title { font-size:22px; font-weight:700; color:var(--dark); margin-bottom:6px; }
+.signin-sub   { font-size:14px; color:var(--muted); margin-bottom:28px; text-align:center; }
+.input-field {
+  width:100%; padding:14px 16px;
+  border:1.5px solid #e8eaed; border-radius:12px;
+  font-size:15px; font-family:'DM Sans',sans-serif;
+  outline:none; transition:border-color 0.2s, box-shadow 0.2s;
+  margin-bottom:14px; color:var(--dark);
+}
+.input-field:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(26,181,192,0.1); }
+.input-field::placeholder { color:#bbb; }
+.btn-primary {
+  width:100%; padding:15px;
+  background:var(--teal); color:#fff; border:none;
+  border-radius:12px; font-size:16px; font-weight:700;
+  cursor:pointer; font-family:'DM Sans',sans-serif;
+  transition:all 0.2s; margin-bottom:18px;
+}
+.btn-primary:hover { background:var(--teal-dark); }
+.btn-primary:active { transform:scale(0.98); }
+.divider { display:flex; align-items:center; gap:12px; width:100%; margin-bottom:14px; }
+.div-line { flex:1; height:1px; background:#e8eaed; }
+.div-text  { font-size:13px; color:#bbb; }
+.btn-social {
+  width:100%; padding:13px;
+  background:#f8f9fa; border:1.5px solid #e8eaed;
+  border-radius:12px; font-size:15px; font-weight:500;
+  cursor:pointer; display:flex; align-items:center;
+  justify-content:center; gap:10px;
+  font-family:'DM Sans',sans-serif; color:var(--dark);
+  transition:background 0.2s; margin-bottom:10px;
+}
+.btn-social:hover { background:#f0f2f5; }
+.terms { font-size:11px; color:#aaa; text-align:center; line-height:1.7; margin-top:18px; }
+.terms a { color:var(--teal); text-decoration:none; }
+
+/* ──────────────────────
+   SCREEN 2 — HOME
+────────────────────── */
+.home-top { background:var(--white); padding:10px 16px 8px; flex-shrink:0; }
+.search-bar {
+  display:flex; align-items:center; gap:10px;
+  background:#f0f2f5; border-radius:12px;
+  padding:10px 14px; color:#bbb; font-size:15px;
+  cursor:pointer; margin-bottom:10px;
+}
+.search-bar svg { width:17px; height:17px; flex-shrink:0; }
+.filter-tabs { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; }
+.filter-tabs::-webkit-scrollbar { display:none; }
+.ftab {
+  display:flex; align-items:center; gap:5px;
+  padding:6px 14px; border:1px solid #e0e4ea;
+  border-radius:20px; font-size:13px; font-weight:500;
+  white-space:nowrap; cursor:pointer; color:#555;
+  transition:all 0.2s; background:var(--white); flex-shrink:0;
+}
+.ftab:hover,.ftab.active { border-color:var(--teal); color:var(--teal); background:rgba(26,181,192,0.06); }
+.ftab svg { width:14px; height:14px; }
+
+.home-scroll { flex:1; overflow-y:auto; scrollbar-width:none; }
+.home-scroll::-webkit-scrollbar { display:none; }
+
+.hero-banner {
+  margin:12px 16px; border-radius:16px; overflow:hidden;
+  height:165px; background:linear-gradient(135deg,#b2dfdb,#4db6ac);
+  display:flex; align-items:center; justify-content:center;
+  font-size:64px; position:relative;
+}
+.hero-dots { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:5px; }
+.hdot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5); }
+.hdot.active { background:#fff; width:18px; border-radius:3px; }
+
+.section-hdr { display:flex; align-items:center; justify-content:space-between; padding:16px 16px 10px; }
+.section-title { font-size:17px; font-weight:700; color:var(--dark); }
+.see-all { font-size:13px; color:var(--teal); font-weight:500; cursor:pointer; }
+.cat-row { display:flex; gap:16px; padding:0 16px 4px; overflow-x:auto; scrollbar-width:none; }
+.cat-row::-webkit-scrollbar { display:none; }
+.cat-item { display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; flex-shrink:0; }
+.cat-circle {
+  width:68px; height:68px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:28px; border:2px solid #f0f2f5;
+  transition:transform 0.2s, box-shadow 0.2s;
+}
+.cat-circle:hover { transform:scale(1.08); box-shadow:0 4px 16px rgba(26,181,192,0.2); }
+.cat-label { font-size:11px; font-weight:600; color:#555; text-transform:uppercase; }
+.act-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 16px 16px; }
+.act-card { border-radius:14px; overflow:hidden; cursor:pointer; transition:transform 0.2s; }
+.act-card:hover { transform:scale(1.02); }
+.act-img { height:110px; display:flex; align-items:center; justify-content:center; font-size:40px; }
+.act-name { padding:8px 10px; font-size:13px; font-weight:500; color:var(--dark); background:var(--white); font-family:'Noto Sans Thai',sans-serif; }
+
+/* ──────────────────────
+   SCREEN 3 — MAP
+────────────────────── */
+.map-top { background:var(--white); padding:8px 14px 10px; flex-shrink:0; box-shadow:0 1px 0 var(--border); }
+.msearch-row {
+  display:flex; align-items:center; gap:10px;
+  background:#f0f2f5; border-radius:12px;
+  padding:10px 14px; margin-bottom:10px;
+  border:2px solid transparent; transition:all 0.2s;
+}
+.msearch-row.focused { background:var(--white); border-color:var(--teal); }
+.msearch-row svg { width:17px; height:17px; color:#aaa; flex-shrink:0; }
+.msearch-input {
+  flex:1; border:none; background:transparent;
+  font-size:15px; font-family:'Noto Sans Thai','DM Sans',sans-serif;
+  font-weight:500; color:var(--dark); outline:none;
+}
+.msearch-input::placeholder { color:#bbb; font-weight:400; }
+.chip-row { display:flex; align-items:center; gap:8px; }
+.chip {
+  display:flex; align-items:center; gap:4px;
+  padding:6px 12px; border:1.5px solid #e0e4ea;
+  border-radius:20px; font-size:13px; color:#555;
+  background:var(--white); cursor:pointer; transition:all 0.2s;
+  font-family:'DM Sans',sans-serif;
+}
+.chip:hover,.chip.active { border-color:var(--teal); color:var(--teal); background:rgba(26,181,192,0.06); }
+.chip svg { width:11px; height:11px; }
+.res-count { margin-left:auto; font-size:12px; color:var(--muted); }
+
+#map { flex:1; min-height:0; z-index:1; position:relative; }
+.my-loc-btn {
+  position:absolute; bottom:12px; right:12px; z-index:100;
+  width:40px; height:40px; background:var(--white);
+  border-radius:10px; box-shadow:var(--shadow);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; border:1px solid var(--border); transition:all 0.2s;
+}
+.my-loc-btn:hover { background:var(--teal); border-color:var(--teal); }
+.my-loc-btn:hover svg { color:#fff; }
+.my-loc-btn svg { width:20px; height:20px; color:var(--teal); }
+
+.autocomplete-list {
+  position:absolute; top:calc(100% + 4px); left:0; right:0;
+  background:var(--white); border-radius:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.14);
+  z-index:500; max-height:200px; overflow-y:auto;
+  display:none; scrollbar-width:none;
+}
+.autocomplete-list.open { display:block; }
+.ac-item {
+  display:flex; align-items:center; gap:10px;
+  padding:11px 14px; cursor:pointer;
+  border-bottom:1px solid var(--border); transition:background 0.15s;
+}
+.ac-item:last-child { border-bottom:none; }
+.ac-item:hover { background:rgba(26,181,192,0.06); }
+.ac-icon { width:32px; height:32px; background:rgba(26,181,192,0.1); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.ac-name { font-size:13px; font-weight:600; color:var(--dark); }
+.ac-addr { font-size:11px; color:var(--muted); margin-top:1px; }
+
+/* Bottom sheet */
+.bottom-sheet {
+  background:var(--bg); border-radius:20px 20px 0 0;
+  flex-shrink:0; overflow:hidden; z-index:50;
+  box-shadow:0 -4px 24px rgba(0,0,0,0.08);
+  display:flex; flex-direction:column;
+  height:300px; transition:height 0.35s cubic-bezier(.4,0,.2,1);
+}
+.bottom-sheet.collapsed { height:130px; }
+.bottom-sheet.expanded  { height:400px; }
+.sheet-handle-area { display:flex; align-items:center; justify-content:center; padding:10px; cursor:pointer; flex-shrink:0; }
+.sheet-handle { width:36px; height:4px; background:#ddd; border-radius:2px; }
+.cards-scroll { overflow-y:auto; scrollbar-width:none; padding:0 0 12px; flex:1; }
+.cards-scroll::-webkit-scrollbar { display:none; }
+
+/* Result cards */
+.result-card {
+  background:var(--white); margin:4px 12px 8px;
+  border-radius:16px; overflow:hidden;
+  box-shadow:var(--shadow); cursor:pointer;
+  transition:transform 0.2s, border-color 0.2s;
+  border:2px solid transparent;
+}
+.result-card:hover { transform:translateY(-2px); }
+.result-card.hl { border-color:var(--teal); }
+.card-img { height:130px; display:flex; align-items:center; justify-content:center; font-size:48px; position:relative; }
+.card-badge { position:absolute; top:10px; left:10px; background:var(--teal); color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; }
+.card-body { padding:11px 13px 13px; }
+.card-name { font-size:15px; font-weight:700; color:var(--dark); margin-bottom:5px; }
+.card-meta { display:flex; gap:12px; font-size:12px; color:var(--muted); margin-bottom:10px; }
+.card-meta span { display:flex; align-items:center; gap:3px; }
+.card-meta svg { width:13px; height:13px; }
+.card-foot { display:flex; align-items:center; justify-content:space-between; }
+.slots { font-size:20px; font-weight:800; color:var(--dark); }
+.slots small { font-size:12px; font-weight:400; color:#bbb; }
+.card-btns { display:flex; gap:8px; }
+.btn-nav {
+  padding:8px 12px; background:rgba(26,181,192,0.1);
+  color:var(--teal); border:1.5px solid var(--teal);
+  border-radius:10px; font-size:13px; font-weight:600;
+  cursor:pointer; font-family:'DM Sans',sans-serif;
+  display:flex; align-items:center; gap:4px; transition:all 0.2s;
+}
+.btn-nav:hover { background:var(--teal); color:#fff; }
+.btn-nav svg { width:13px; height:13px; }
+.btn-sel {
+  padding:8px 16px; background:var(--dark); color:#fff;
+  border:none; border-radius:10px; font-size:13px; font-weight:600;
+  cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
+}
+.btn-sel:hover { background:#2d2d4e; }
+.btn-sel.booked { background:var(--teal); }
+
+/* Nav panel */
+.nav-panel {
+  position:absolute; top:10px; left:12px; right:12px;
+  background:var(--white); border-radius:16px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.14);
+  padding:14px 16px; z-index:300; display:none;
+  border-left:4px solid var(--teal);
+}
+.nav-panel.open { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.nav-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.nav-title { font-size:14px; font-weight:700; color:var(--dark); display:flex; align-items:center; gap:6px; }
+.nav-close { cursor:pointer; font-size:18px; color:var(--muted); }
+.nav-step { display:flex; align-items:center; gap:10px; font-size:12px; color:var(--text); padding:6px 10px; border-radius:8px; background:#f8f9fa; margin-bottom:5px; }
+.nav-step-dist { margin-left:auto; color:var(--muted); font-size:11px; }
+.nav-sum { display:flex; gap:16px; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
+.nav-stat { text-align:center; }
+.nav-stat-val { font-size:16px; font-weight:800; color:var(--teal); }
+.nav-stat-lbl { font-size:10px; color:var(--muted); }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  background:var(--white); border-top:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-around;
+  padding:8px 0 16px; flex-shrink:0; z-index:200;
+}
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; padding:4px 12px; }
+.nav-item svg { width:22px; height:22px; color:#ccc; transition:color 0.2s; }
+.nav-item.active svg { color:var(--teal); }
+.nav-dot { width:4px; height:4px; border-radius:50%; background:var(--teal); }
+
+/* ── MAP MARKERS ── */
+.pin-bubble {
+  background:var(--white); border:2px solid #dde3ed;
+  border-radius:20px; padding:5px 11px;
+  font-size:12px; font-family:'Noto Sans Thai',sans-serif;
+  color:var(--dark); white-space:nowrap;
+  box-shadow:0 2px 10px rgba(0,0,0,0.12);
+  cursor:pointer; font-weight:600;
+}
+.pin-bubble.featured { background:var(--dark); color:#fff; border-color:var(--dark); }
+.pin-bubble.selected { background:var(--teal); color:#fff; border-color:var(--teal); transform:scale(1.08); }
+.my-loc-dot { width:16px; height:16px; background:var(--teal); border:3px solid #fff; border-radius:50%; box-shadow:0 0 0 5px rgba(26,181,192,0.25); animation:locPulse 2s infinite; }
+@keyframes locPulse { 0%,100%{box-shadow:0 0 0 5px rgba(26,181,192,0.25)} 50%{box-shadow:0 0 0 10px rgba(26,181,192,0.08)} }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:100px; left:50%;
+  transform:translateX(-50%) translateY(12px);
+  background:var(--dark); color:#fff;
+  padding:10px 20px; border-radius:20px;
+  font-size:13px; font-weight:500; white-space:nowrap;
+  opacity:0; transition:all 0.3s; z-index:9999; pointer-events:none;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── FILTER MODAL ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:9000; display:none; align-items:flex-end; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--white); width:100%; border-radius:24px 24px 0 0; padding:20px 20px 36px; animation:slideUp 0.3s ease; }
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.modal-title { font-size:17px; font-weight:700; color:var(--dark); }
+.modal-x { cursor:pointer; font-size:20px; color:var(--muted); }
+.fgroup { margin-bottom:16px; }
+.fgroup-lbl { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; }
+.fopts { display:flex; flex-wrap:wrap; gap:8px; }
+.fopt { padding:7px 14px; border:1.5px solid #e0e4ea; border-radius:20px; font-size:13px; cursor:pointer; transition:all 0.2s; font-family:'Noto Sans Thai','DM Sans',sans-serif; }
+.fopt.active { background:var(--teal); color:#fff; border-color:var(--teal); }
+.btn-apply { width:100%; padding:14px; background:var(--teal); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; }
+
+/* Leaflet overrides */
+.leaflet-control-zoom { border:none !important; box-shadow:var(--shadow) !important; border-radius:10px !important; }
+.leaflet-control-zoom a { color:var(--dark) !important; font-weight:700 !important; border:none !important; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════
+     SCREEN 1 — SIGN IN
+════════════════════════════ -->
+<div class="screen" id="screenSignin">
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="8" width="3" height="13" rx="1"/><rect x="7" y="5" width="3" height="16" rx="1"/><rect x="12" y="2" width="3" height="19" rx="1"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1.5 8.5C5.5 4.5 10.5 2.5 12 2.5s6.5 2 10.5 6"/><path d="M5 12c1.9-1.9 4.3-3 7-3s5.1 1.1 7 3"/><circle cx="12" cy="19" r="1.5"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M20 10.5h2v3.5h-2"/></svg>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px 40px">
+    <div class="logo-wrap">
+      <div class="logo-icon">🤝</div>
+      <div class="logo-name">WAICHAEO</div>
+      <div class="logo-sub">CARE &amp; SHARE</div>
+    </div>
+    <div class="signin-title">Create an account</div>
+    <div class="signin-sub">Enter your email to sign up for this app</div>
+    <input class="input-field" id="emailInput" type="email" placeholder="email@domain.com">
+    <button class="btn-primary" onclick="doSignin()">Continue</button>
+    <div class="divider"><div class="div-line"></div><span class="div-text">or</span><div class="div-line"></div></div>
+    <button class="btn-social" onclick="goHome()">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <button class="btn-social" onclick="goHome()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      Continue with Apple
+    </button>
+    <div class="terms">By clicking continue, you agree to our <a href="#">Terms of Service</a><br>and <a href="#">Privacy Policy</a></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN 2 — HOME
+════════════════════════════ -->
+<div class="screen hidden" id="screenHome">
+  <div class="status-bar"><span>9:41</span><div class="status-icons"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="8" width="3" height="13" rx="1"/><rect x="7" y="5" width="3" height="16" rx="1"/><rect x="12" y="2" width="3" height="19" rx="1"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1.5 8.5C5.5 4.5 10.5 2.5 12 2.5s6.5 2 10.5 6"/><path d="M5 12c1.9-1.9 4.3-3 7-3s5.1 1.1 7 3"/><circle cx="12" cy="19" r="1.5"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M20 10.5h2v3.5h-2"/></svg></div></div>
+
+  <div class="home-top">
+    <div class="search-bar" onclick="goMap()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>ค้นหา...</span>
+    </div>
+    <div class="filter-tabs">
+      <div class="ftab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Favorites</div>
+      <div class="ftab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>History</div>
+      <div class="ftab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/></svg>Trend</div>
+      <div class="ftab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Orders</div>
+    </div>
+  </div>
+
+  <div class="home-scroll">
+    <div class="hero-banner">👴👵<div class="hero-dots"><div class="hdot active"></div><div class="hdot"></div><div class="hdot"></div><div class="hdot"></div></div></div>
+    <div class="section-hdr"><span class="section-title">Category</span><span class="see-all">ดูทั้งหมด ›</span></div>
+    <div class="cat-row">
+      <div class="cat-item" onclick="goMap()"><div class="cat-circle" style="background:linear-gradient(135deg,#fff3e0,#ffe0b2)">🍜</div><span class="cat-label">Food</span></div>
+      <div class="cat-item" onclick="goMap()"><div class="cat-circle" style="background:linear-gradient(135deg,#f3e5f5,#e1bee7)">🧶</div><span class="cat-label">Handicraft</span></div>
+      <div class="cat-item" onclick="goMap()"><div class="cat-circle" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9)">🔧</div><span class="cat-label">Repair</span></div>
+      <div class="cat-item" onclick="goMap()"><div class="cat-circle" style="background:linear-gradient(135deg,#f1f8e9,#dcedc8)">🌻</div><span class="cat-label">Garden</span></div>
+      <div class="cat-item" onclick="goMap()"><div class="cat-circle" style="background:linear-gradient(135deg,#e3f2fd,#bbdefb)">🎨</div><span class="cat-label">Art</span></div>
+    </div>
+    <div class="section-hdr"><span class="section-title">Activity</span><span class="see-all">ดูทั้งหมด ›</span></div>
+    <div class="act-grid">
+      <div class="act-card" onclick="goMap()"><div class="act-img" style="background:linear-gradient(135deg,#e0f2f1,#b2dfdb)">🥋</div><div class="act-name">รำไทเก็ก</div></div>
+      <div class="act-card" onclick="goMap()"><div class="act-img" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0)">🏃</div><div class="act-name">แอโรบิค</div></div>
+      <div class="act-card" onclick="goMap()"><div class="act-img" style="background:linear-gradient(135deg,#f3e5f5,#e1bee7)">🧶</div><div class="act-name">งานฝีมือ</div></div>
+      <div class="act-card" onclick="goMap()"><div class="act-img" style="background:linear-gradient(135deg,#f1f8e9,#dcedc8)">🌻</div><div class="act-name">ทำสวน</div></div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><div class="nav-dot"></div></div>
+    <div class="nav-item" onclick="goMap()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN 3 — MAP
+════════════════════════════ -->
+<div class="screen hidden" id="screenMap">
+  <div class="status-bar"><span>9:41</span><div class="status-icons"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="8" width="3" height="13" rx="1"/><rect x="7" y="5" width="3" height="16" rx="1"/><rect x="12" y="2" width="3" height="19" rx="1"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1.5 8.5C5.5 4.5 10.5 2.5 12 2.5s6.5 2 10.5 6"/><path d="M5 12c1.9-1.9 4.3-3 7-3s5.1 1.1 7 3"/><circle cx="12" cy="19" r="1.5"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M20 10.5h2v3.5h-2"/></svg></div></div>
+
+  <div class="map-top">
+    <div style="position:relative">
+      <div class="msearch-row" id="msearchRow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="msearch-input" id="msearchInput" placeholder="ค้นหาสถานที่หรือกิจกรรม..." value="หาดใหญ่"
+          oninput="onSearch(this.value)"
+          onfocus="this.closest('.msearch-row').classList.add('focused')"
+          onblur="setTimeout(()=>{document.getElementById('msearchRow').classList.remove('focused');closeAC()},200)">
+        <div style="cursor:pointer;width:20px;height:20px;border-radius:50%;background:#ccc;display:flex;align-items:center;justify-content:center;" id="mClearBtn" onclick="clearMSearch()" style="display:none">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+      </div>
+      <div class="autocomplete-list" id="acList"></div>
+    </div>
+    <div class="chip-row">
+      <div class="chip" id="filterChip" onclick="openFilter()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+        Filter
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6,9 12,15 18,9"/></svg>
+      </div>
+      <div class="chip" id="sortChip" onclick="cycleSort()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
+        <span id="sortLbl">Sort</span>
+      </div>
+      <span class="res-count" id="resCount">6 results</span>
+    </div>
+  </div>
+
+  <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column;">
+    <div id="map"></div>
+    <div class="my-loc-btn" onclick="getGPS()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="9" stroke-dasharray="4 2"/></svg>
+    </div>
+    <div class="nav-panel" id="navPanel">
+      <div class="nav-hdr">
+        <div class="nav-title">🧭 <span id="navTitle">กำลังนำทาง...</span></div>
+        <span class="nav-close" onclick="clearRoute()">✕</span>
+      </div>
+      <div id="navSteps"></div>
+      <div class="nav-sum" id="navSum"></div>
+    </div>
+    <div class="bottom-sheet" id="bsheet">
+      <div class="sheet-handle-area" onclick="cycleSheet()"><div class="sheet-handle"></div></div>
+      <div class="cards-scroll" id="cardsScroll"></div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+    <div class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="var(--teal)" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="var(--teal)" stroke-width="2"/><line x1="3" y1="10" x2="21" y2="10" stroke="var(--teal)" stroke-width="2"/></svg><div class="nav-dot"></div></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+  </div>
+</div>
+
+<!-- FILTER MODAL -->
+<div class="modal-overlay" id="filterModal" onclick="if(event.target===this)closeFilter()">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">ตัวกรอง</div><span class="modal-x" onclick="closeFilter()">✕</span></div>
+    <div class="fgroup">
+      <div class="fgroup-lbl">ประเภทกิจกรรม</div>
+      <div class="fopts" id="catF">
+        <div class="fopt active" data-v="all" onclick="selF(this,'cat')">ทั้งหมด</div>
+        <div class="fopt" data-v="exercise" onclick="selF(this,'cat')">🏃 ออกกำลังกาย</div>
+        <div class="fopt" data-v="craft" onclick="selF(this,'cat')">🧶 งานฝีมือ</div>
+        <div class="fopt" data-v="garden" onclick="selF(this,'cat')">🌻 ทำสวน</div>
+        <div class="fopt" data-v="repair" onclick="selF(this,'cat')">🔧 ซ่อมแซม</div>
+      </div>
+    </div>
+    <div class="fgroup">
+      <div class="fgroup-lbl">ระยะทาง</div>
+      <div class="fopts" id="distF">
+        <div class="fopt active" data-v="99" onclick="selF(this,'dist')">ทั้งหมด</div>
+        <div class="fopt" data-v="1" onclick="selF(this,'dist')">&lt;1 km</div>
+        <div class="fopt" data-v="3" onclick="selF(this,'dist')">&lt;3 km</div>
+        <div class="fopt" data-v="5" onclick="selF(this,'dist')">&lt;5 km</div>
+      </div>
+    </div>
+    <div class="fgroup">
+      <div class="fgroup-lbl">คะแนน</div>
+      <div class="fopts" id="ratingF">
+        <div class="fopt active" data-v="0" onclick="selF(this,'rating')">ทั้งหมด</div>
+        <div class="fopt" data-v="4.5" onclick="selF(this,'rating')">⭐ 4.5+</div>
+        <div class="fopt" data-v="4" onclick="selF(this,'rating')">⭐ 4.0+</div>
+      </div>
+    </div>
+    <button class="btn-apply" onclick="applyFilter()">ดูผลลัพธ์</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════
+//  DATA
+// ══════════════════════════════
+const acts = [
+  {id:1,name:'รำไทเก็ก',en:'Tai Chi',      lat:7.0084,lng:100.4747,e:'🥋',cat:'exercise',r:4.8,rv:500,dist:1.9,tot:40,fill:27,feat:true},
+  {id:2,name:'แอโรบิค', en:'Aerobics',     lat:7.0130,lng:100.4810,e:'🏃',cat:'exercise',r:4.6,rv:312,dist:1.3,tot:30,fill:15,feat:false},
+  {id:3,name:'งานฝีมือ',en:'Handicraft',   lat:7.0052,lng:100.4695,e:'🧶',cat:'craft',   r:4.9,rv:189,dist:2.1,tot:20,fill:8, feat:false},
+  {id:4,name:'ทำสวน',   en:'Gardening',    lat:7.0162,lng:100.4835,e:'🌻',cat:'garden',  r:4.7,rv:95, dist:3.0,tot:25,fill:10,feat:false},
+  {id:5,name:'ซ่อมแซม', en:'Basic Repair', lat:7.0098,lng:100.4763,e:'🔧',cat:'repair',  r:4.5,rv:78, dist:1.5,tot:15,fill:6, feat:false},
+  {id:6,name:'โยคะ',    en:'Yoga',         lat:7.0068,lng:100.4822,e:'🧘',cat:'exercise',r:4.7,rv:210,dist:2.4,tot:20,fill:12,feat:false},
+];
+let filtered=[...acts],markers={},myMark=null,routeLayer=null;
+let selId=null,myLat=null,myLng=null,booked=new Set();
+let sortMode=0,fCat='all',fDist=99,fRating=0,sheetState=0,searchTimer=null;
+let mapInited=false;
+
+// ══════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════
+function goHome(){
+  document.getElementById('screenSignin').classList.add('slide-left');
+  document.getElementById('screenHome').classList.remove('hidden');
+  document.getElementById('screenMap').classList.add('hidden');
+}
+function goMap(){
+  document.getElementById('screenHome').classList.add('hidden');
+  document.getElementById('screenMap').classList.remove('hidden');
+  if(!mapInited){ initMap(); mapInited=true; }
+}
+function doSignin(){
+  const email=document.getElementById('emailInput').value;
+  if(!email){ toast('กรุณากรอก Email ครับ'); return; }
+  toast('✅ เข้าสู่ระบบสำเร็จ!');
+  setTimeout(goHome,800);
+}
+
+// ══════════════════════════════
+//  MAP INIT
+// ══════════════════════════════
+let map;
+function initMap(){
+  map = L.map('map',{center:[7.0084,100.4747],zoom:14,zoomControl:true,attributionControl:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+  buildMarkers(acts);
+  renderCards(acts);
+}
+
+function makeIcon(a,sel){
+  const cls=sel?'pin-bubble selected':a.feat?'pin-bubble featured':'pin-bubble';
+  return L.divIcon({className:'',html:`<div class="${cls}">${a.e} ${a.name}</div>`,iconAnchor:[50,20]});
+}
+function buildMarkers(list){
+  Object.values(markers).forEach(m=>map.removeLayer(m)); markers={};
+  list.forEach(a=>{
+    const m=L.marker([a.lat,a.lng],{icon:makeIcon(a,false)}).addTo(map);
+    m.on('click',()=>pickAct(a.id)); markers[a.id]=m;
+  });
+}
+function pickAct(id){
+  selId=id;
+  filtered.forEach(a=>{ if(markers[a.id]) markers[a.id].setIcon(makeIcon(a,a.id===id)); });
+  document.querySelectorAll('.result-card').forEach(c=>c.classList.toggle('hl',c.id==='card-'+id));
+  const card=document.getElementById('card-'+id);
+  if(card) card.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const a=acts.find(x=>x.id===id);
+  if(a) map.flyTo([a.lat,a.lng],15,{duration:0.8});
+  if(sheetState===1){ sheetState=0; applySheet(); }
+}
+
+// ══════════════════════════════
+//  GPS + ROUTING
+// ══════════════════════════════
+function getGPS(){
+  if(!navigator.geolocation){ toast('GPS ไม่รองรับ'); return; }
+  toast('⏳ กำลังหาตำแหน่ง...');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    myLat=pos.coords.latitude; myLng=pos.coords.longitude;
+    if(myMark) map.removeLayer(myMark);
+    myMark=L.marker([myLat,myLng],{icon:L.divIcon({className:'',html:'<div class="my-loc-dot"></div>',iconAnchor:[8,8]})}).addTo(map);
+    myMark.bindPopup('<b>📍 ตำแหน่งของคุณ</b>').openPopup();
+    map.flyTo([myLat,myLng],15,{duration:1});
+    acts.forEach(a=>{ a.dist=+(haversine(myLat,myLng,a.lat,a.lng)).toFixed(1); });
+    applyAll(); toast('✅ พบตำแหน่งของคุณ');
+  },()=>toast('❌ ไม่สามารถเข้าถึง GPS'));
+}
+function haversine(a,b,c,d){
+  const R=6371,dL=(c-a)*Math.PI/180,dG=(d-b)*Math.PI/180;
+  const x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dG/2)**2;
+  return R*2*Math.asin(Math.sqrt(x));
+}
+async function navigateTo(id){
+  const a=acts.find(x=>x.id===id);
+  if(!myLat){ toast('📍 กรุณาเปิด GPS ก่อน'); getGPS(); return; }
+  clearRoute(); toast('🧭 กำลังคำนวณเส้นทาง...');
+  try{
+    const res=await fetch(`https://router.project-osrm.org/route/v1/driving/${myLng},${myLat};${a.lng},${a.lat}?overview=full&geometries=geojson&steps=true`);
+    const data=await res.json();
+    if(data.code!=='Ok') throw 0;
+    const route=data.routes[0];
+    routeLayer=L.polyline(route.geometry.coordinates.map(([g,h])=>[h,g]),{color:'#1ab5c0',weight:5,opacity:0.85,lineCap:'round'}).addTo(map);
+    map.fitBounds(routeLayer.getBounds(),{padding:[30,30]});
+    const km=(route.distance/1000).toFixed(1),min=Math.round(route.duration/60);
+    const steps=route.legs[0].steps.slice(0,4).map(s=>{
+      const ic={depart:'🚦',arrive:'🏁',left:'⬅️',right:'➡️','slight left':'↖️','slight right':'↗️',uturn:'🔄'}[s.maneuver.modifier||s.maneuver.type]||'⬆️';
+      const dist=s.distance>1000?(s.distance/1000).toFixed(1)+'km':Math.round(s.distance)+'m';
+      return `<div class="nav-step"><span>${ic}</span><span>${s.name||'ต่อไป'}</span><span class="nav-step-dist">${dist}</span></div>`;
+    }).join('');
+    document.getElementById('navTitle').textContent=`ไป ${a.name}`;
+    document.getElementById('navSteps').innerHTML=steps;
+    document.getElementById('navSum').innerHTML=`<div class="nav-stat"><div class="nav-stat-val">${km}</div><div class="nav-stat-lbl">กิโลเมตร</div></div><div class="nav-stat"><div class="nav-stat-val">${min}</div><div class="nav-stat-lbl">นาที</div></div><div class="nav-stat"><div class="nav-stat-val">🚗</div><div class="nav-stat-lbl">รถยนต์</div></div>`;
+    document.getElementById('navPanel').classList.add('open');
+    toast(`✅ ${km} km · ${min} นาที`);
+  }catch(e){ toast('❌ ไม่สามารถคำนวณเส้นทางได้'); }
+}
+function clearRoute(){
+  if(routeLayer){ map.removeLayer(routeLayer); routeLayer=null; }
+  document.getElementById('navPanel').classList.remove('open');
+}
+
+// ══════════════════════════════
+//  SEARCH (Nominatim)
+// ══════════════════════════════
+let searchMark=null;
+function onSearch(v){
+  clearTimeout(searchTimer);
+  if(v.length<2){ closeAC(); return; }
+  searchTimer=setTimeout(async()=>{
+    const local=acts.filter(a=>a.name.includes(v)||a.en.toLowerCase().includes(v.toLowerCase()));
+    try{
+      const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(v+' หาดใหญ่')}&format=json&limit=3&accept-language=th&countrycodes=th`);
+      const places=await res.json();
+      showAC(local,places);
+    }catch{ showAC(local,[]); }
+  },400);
+}
+function showAC(local,places){
+  let html=local.map(a=>`<div class="ac-item" onclick="jumpAct(${a.id})"><div class="ac-icon">${a.e}</div><div><div class="ac-name">${a.name}</div><div class="ac-addr">${a.en} · ${a.dist} km</div></div></div>`).join('');
+  places.slice(0,3).forEach(p=>{
+    const n=p.display_name.split(',')[0];
+    html+=`<div class="ac-item" onclick="jumpPlace(${p.lat},${p.lon},'${n.replace(/'/g,"\\'")}')"><div class="ac-icon">📍</div><div><div class="ac-name">${n}</div><div class="ac-addr">${p.display_name.split(',').slice(1,3).join(',')}</div></div></div>`;
+  });
+  if(!html) html=`<div class="ac-item"><div class="ac-icon">🔍</div><div><div class="ac-name">ไม่พบผลลัพธ์</div></div></div>`;
+  document.getElementById('acList').innerHTML=html;
+  document.getElementById('acList').classList.add('open');
+}
+function closeAC(){ document.getElementById('acList').classList.remove('open'); }
+function jumpAct(id){ closeAC(); pickAct(id); document.getElementById('msearchInput').value=acts.find(a=>a.id===id)?.name||''; }
+function jumpPlace(lat,lng,name){
+  closeAC(); document.getElementById('msearchInput').value=name;
+  if(searchMark) map.removeLayer(searchMark);
+  searchMark=L.marker([lat,lng],{icon:L.divIcon({className:'',html:`<div class="pin-bubble selected">📍 ${name}</div>`,iconAnchor:[50,20]})}).addTo(map);
+  map.flyTo([lat,lng],16,{duration:1}); toast(`📍 ${name}`);
+}
+function clearMSearch(){
+  document.getElementById('msearchInput').value='';
+  if(searchMark){ map.removeLayer(searchMark); searchMark=null; }
+  closeAC(); filtered=[...acts]; renderCards(filtered); buildMarkers(filtered);
+}
+
+// ══════════════════════════════
+//  FILTER + SORT
+// ══════════════════════════════
+function applyAll(){
+  filtered=acts.filter(a=>(fCat==='all'||a.cat===fCat)&&a.dist<=fDist&&a.r>=fRating);
+  if(sortMode===1) filtered.sort((a,b)=>a.dist-b.dist);
+  if(sortMode===2) filtered.sort((a,b)=>b.r-a.r);
+  renderCards(filtered); buildMarkers(filtered);
+  document.getElementById('resCount').textContent=filtered.length+' results';
+}
+function cycleSort(){
+  sortMode=(sortMode+1)%3;
+  document.getElementById('sortLbl').textContent=['Sort','ระยะทาง ↑','คะแนน ↓'][sortMode];
+  document.getElementById('sortChip').classList.toggle('active',sortMode>0);
+  applyAll();
+}
+function selF(el,g){
+  const ids={cat:'catF',dist:'distF',rating:'ratingF'};
+  document.querySelectorAll('#'+ids[g]+' .fopt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  if(g==='cat')    fCat=el.dataset.v;
+  if(g==='dist')   fDist=parseFloat(el.dataset.v);
+  if(g==='rating') fRating=parseFloat(el.dataset.v);
+}
+function openFilter(){ document.getElementById('filterModal').classList.add('open'); }
+function closeFilter(){ document.getElementById('filterModal').classList.remove('open'); }
+function applyFilter(){ closeFilter(); applyAll(); toast('✅ ใช้ตัวกรองแล้ว'); }
+
+// ══════════════════════════════
+//  RENDER CARDS
+// ══════════════════════════════
+const BG={exercise:'linear-gradient(135deg,#e0f2f1,#b2dfdb)',craft:'linear-gradient(135deg,#f3e5f5,#e1bee7)',garden:'linear-gradient(135deg,#f1f8e9,#dcedc8)',repair:'linear-gradient(135deg,#e8f5e9,#c8e6c9)'};
+function renderCards(list){
+  document.getElementById('cardsScroll').innerHTML=list.map(a=>`
+    <div class="result-card" id="card-${a.id}" onclick="pickAct(${a.id})">
+      <div class="card-img" style="background:${BG[a.cat]||'linear-gradient(135deg,#e3f2fd,#bbdefb)'}">${a.e}${a.feat?'<div class="card-badge">⭐ แนะนำ</div>':''}</div>
+      <div class="card-body">
+        <div class="card-name">${a.name} <span style="font-size:12px;color:var(--muted);font-weight:400">(${a.en})</span></div>
+        <div class="card-meta">
+          <span><svg viewBox="0 0 24 24" fill="#f4a338"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>${a.r} (${a.rv})</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${a.dist} km</span>
+          <span>🪑 ${a.tot-a.fill} ว่าง</span>
+        </div>
+        <div class="card-foot">
+          <div class="slots">${a.tot-a.fill}<small>/${a.tot}</small></div>
+          <div class="card-btns">
+            <button class="btn-nav" onclick="event.stopPropagation();navigateTo(${a.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3,11 22,2 13,21 11,13 3,11"/></svg>นำทาง</button>
+            <button class="btn-sel ${booked.has(a.id)?'booked':''}" onclick="event.stopPropagation();bookAct(${a.id})">${booked.has(a.id)?'✓ จองแล้ว':'Select'}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function bookAct(id){
+  booked.has(id)?booked.delete(id):booked.add(id);
+  toast(booked.has(id)?'🎉 จองสำเร็จ!':'ยกเลิกการจองแล้ว');
+  renderCards(filtered);
+}
+
+// ══════════════════════════════
+//  SHEET + TOAST
+// ══════════════════════════════
+function cycleSheet(){ sheetState=(sheetState+1)%3; applySheet(); }
+function applySheet(){
+  const s=document.getElementById('bsheet');
+  s.classList.remove('collapsed','expanded');
+  if(sheetState===1) s.classList.add('collapsed');
+  if(sheetState===2) s.classList.add('expanded');
+}
+let toastT;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ══════════════════════════════
+//  SERVICE WORKER
+// ══════════════════════════════
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js')
+      .then(()=>console.log('✅ SW registered'))
+      .catch(e=>console.log('SW error:',e));
+  });
+}
+</script>
+</body>
+</html>
