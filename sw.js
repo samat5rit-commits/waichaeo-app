@@ -3,7 +3,7 @@
 //  จัดการ cache ให้แอปทำงาน offline ได้
 // ============================================================
 
-const CACHE_NAME   = 'waichaeo-v1.1';
+const CACHE_NAME   = 'waichaeo-v1.3';
 const STATIC_FILES = [
   '/',
   '/index.html',
@@ -52,9 +52,24 @@ self.addEventListener('fetch', event => {
     'tile.openstreetmap.org',
     'nominatim.openstreetmap.org',
     'router.project-osrm.org',
+    'supabase.co',
   ];
   if (externalAPIs.some(api => url.hostname.includes(api))) {
     event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // หน้าเว็บ (HTML): ดึงจากเครือข่ายก่อนเสมอ เพื่อให้ได้เวอร์ชันล่าสุดหลัง Deploy; ใช้แคชเมื่อออฟไลน์เท่านั้น
+  if (event.request.method === 'GET' && (event.request.mode === 'navigate' || url.pathname === '/index.html')) {
+    event.respondWith(
+      fetch(event.request).then(response => {
+        if (response && response.status === 200) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(c => c.put(event.request, copy));
+        }
+        return response;
+      }).catch(() => caches.match(event.request).then(m => m || caches.match('/index.html')))
+    );
     return;
   }
 

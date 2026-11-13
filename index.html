@@ -569,7 +569,7 @@ body {
 <div class="screen hidden" id="screenHost">
   <div class="status-bar"><span>9:41</span></div>
   <div class="h-head">
-    <div><div class="h-title">ฝั่งเจ้าภาพ</div><div class="h-sub">จัดการกิจกรรมของคุณ</div></div>
+    <div><div class="h-title">ฝั่งเจ้าภาพ</div><div class="h-sub">จัดการกิจกรรมของคุณ · v3</div></div>
     <button class="h-add" onclick="openCreate()">+ สร้างกิจกรรม</button>
   </div>
   <div class="h-scroll">
@@ -976,14 +976,15 @@ function createAct(){
 // ══════════════════════════════
 //  DATA LAYER  (Supabase ถ้ากรอกค่าด้านล่าง ไม่เช่นนั้นเก็บในเบราว์เซอร์)
 // ══════════════════════════════
-const DB={ url:'https://rfwanaiwbvszydyokrow.supabase.co', key:'sb_publishable_tzyB7llUToMGEqE0pXUxRg_MiShA1NY' };   // ← ใส่ Project URL และ anon key ของ Supabase ที่นี่ (ดู supabase-setup.sql)
+const DB={ url:'', key:'' };   // ← ใส่ Project URL และ anon key ของ Supabase ที่นี่ (ดู supabase-setup.sql)
 const useDB=()=>!!(DB.url&&DB.key);
 const LS={ get(k){ try{return JSON.parse(localStorage.getItem(k))}catch(e){return null} }, set(k,v){ try{localStorage.setItem(k,JSON.stringify(v))}catch(e){} } };
 let UID=LS.get('wc_uid'); if(!UID){ UID='u'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); LS.set('wc_uid',UID); }
 async function sb(path,opt={}){
-  const r=await fetch(DB.url+'/rest/v1/'+path,{...opt,headers:{apikey:DB.key,...(DB.key.startsWith('eyJ')?{Authorization:'Bearer '+DB.key}:{}),'Content-Type':'application/json',...(opt.headers||{})}});
-  if(!r.ok) throw new Error(await r.text());
-  return r.status===204?null:r.json();
+  const base=DB.url.trim().replace(/\/+$/,'').replace(/\/rest\/v1$/,''), key=DB.key.trim();
+  const r=await fetch(base+'/rest/v1/'+path,{...opt,headers:{apikey:key,...(key.startsWith('eyJ')?{Authorization:'Bearer '+key}:{}),'Content-Type':'application/json',...(opt.headers||{})}});
+  if(!r.ok) throw new Error(r.status+' '+(await r.text()).slice(0,120));
+  const t=await r.text(); return t?JSON.parse(t):null;
 }
 const CAT_DESC={exercise:'ออกกำลังกายเบา ๆ ร่วมกับเพื่อนวัยเดียวกัน เหมาะกับทุกระดับ มีผู้นำกิจกรรมคอยแนะนำ',craft:'ทำงานฝีมือด้วยกัน แลกเปลี่ยนเทคนิค และได้ชิ้นงานกลับบ้าน',garden:'ปลูกและดูแลพืชผักสวนครัว เรียนรู้การทำสวนจากผู้มีประสบการณ์',repair:'เรียนรู้การซ่อมแซมของใช้ในบ้านเบื้องต้นจากอาสาสมัคร'};
 const SAMPLE_N=6;
@@ -1012,7 +1013,7 @@ async function loadData(){
       booked=new Set(s.booked||[]);
     }
     refreshUI();
-  }catch(e){ console.warn('loadData',e); toast('โหลดข้อมูลจากเซิร์ฟเวอร์ไม่สำเร็จ'); }
+  }catch(e){ console.warn('loadData',e); toast('โหลดข้อมูลไม่สำเร็จ: '+String(e.message||e).slice(0,70)); }
 }
 function saveLocal(){
   LS.set('wc_state',{extra:acts.filter(a=>a.id>SAMPLE_N),closed:acts.filter(a=>a.closed).map(a=>a.id),
@@ -1023,7 +1024,7 @@ async function persistCreate(a){
   try{
     await sb('activities',{method:'POST',body:JSON.stringify({name:a.name,en:'Hosted',lat:a.lat,lng:a.lng,e:a.e,cat:a.cat,tot:a.tot,base_fill:0,owner_id:UID,place:a.place,when_text:a.when,descr:a.desc})});
     toast('สร้างกิจกรรมแล้ว ผู้ใช้ทุกคนจะเห็น'); await loadData();
-  }catch(e){ toast('สร้างกิจกรรมไม่สำเร็จ'); console.warn(e); }
+  }catch(e){ toast('สร้างกิจกรรมไม่สำเร็จ: '+String(e.message||e).slice(0,70)); console.warn(e); }
 }
 async function persistClosed(a){
   if(!useDB()) return saveLocal();
