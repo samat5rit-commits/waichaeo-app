@@ -3,15 +3,14 @@
 //  จัดการ cache ให้แอปทำงาน offline ได้
 // ============================================================
 
-const CACHE_NAME   = 'waichaeo-v1.0';
+const CACHE_NAME   = 'waichaeo-v1.1';
 const STATIC_FILES = [
   '/',
   '/index.html',
-  '/map.html',
-  '/signin.html',
   '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/waichaeo_logo.jpg',
 ];
 
 // ── INSTALL: cache ไฟล์ทั้งหมดตอนติดตั้งครั้งแรก
@@ -90,8 +89,8 @@ self.addEventListener('push', event => {
   const data = event.data?.json() || {};
   self.registration.showNotification(data.title || 'Waichaeo', {
     body: data.body || 'มีกิจกรรมใหม่สำหรับคุณ!',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-96.png',
+    icon: '/icon-192.png',
+    badge: '/icon-96.png',
     data: { url: data.url || '/' }
   });
 });
