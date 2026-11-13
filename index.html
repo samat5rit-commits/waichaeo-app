@@ -976,7 +976,7 @@ function createAct(){
 // ══════════════════════════════
 //  DATA LAYER  (Supabase ถ้ากรอกค่าด้านล่าง ไม่เช่นนั้นเก็บในเบราว์เซอร์)
 // ══════════════════════════════
-const DB={ url:'https://rfwanaiwbvszydyokrow.supabase.co/rest/v1/', key:'sb_publishable_tzyB7llUToMGEqE0pXUxRg_MiShA1NY' };   // ← ใส่ Project URL และ anon key ของ Supabase ที่นี่ (ดู supabase-setup.sql)
+const DB={ url:'https://rfwanaiwbvszydyokrow.supabase.co', key:'sb_publishable_tzyB7llUToMGEqE0pXUxRg_MiShA1NY' };   // ← ใส่ Project URL และ anon key ของ Supabase ที่นี่ (ดู supabase-setup.sql)
 const useDB=()=>!!(DB.url&&DB.key);
 const LS={ get(k){ try{return JSON.parse(localStorage.getItem(k))}catch(e){return null} }, set(k,v){ try{localStorage.setItem(k,JSON.stringify(v))}catch(e){} } };
 let UID=LS.get('wc_uid'); if(!UID){ UID='u'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); LS.set('wc_uid',UID); }
