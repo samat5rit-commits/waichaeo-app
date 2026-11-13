@@ -365,6 +365,55 @@ body {
 .pin-bubble{border:0;font-weight:500}
 .pin-bubble.featured{background:var(--white);color:var(--dark);border:0}
 .pin-bubble.selected{background:#111;color:#fff;font-weight:600;transform:scale(1.05)}
+
+/* ── Host side ── */
+.h-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 16px 4px}
+.h-title{font-size:22px;font-weight:700;color:var(--dark);font-family:'Noto Sans Thai','DM Sans',sans-serif}
+.h-sub{font-size:13px;color:var(--muted);font-family:'Noto Sans Thai',sans-serif}
+.h-add{background:var(--teal);color:#fff;border:0;border-radius:12px;padding:11px 14px;font:600 14px 'Noto Sans Thai','DM Sans',sans-serif;cursor:pointer;flex-shrink:0}
+.h-add:active{background:var(--teal-dark)}
+.h-scroll{flex:1;overflow-y:auto;padding:8px 0 16px;scrollbar-width:none}
+.h-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:8px 16px}
+.h-stat{background:var(--white);border-radius:14px;padding:12px 8px;text-align:center;box-shadow:var(--shadow)}
+.h-stat b{display:block;font-size:22px;color:var(--teal);font-weight:800}
+.h-stat span{font-size:12px;color:var(--muted);font-family:'Noto Sans Thai',sans-serif}
+.h-card{background:var(--white);margin:8px 16px;border-radius:16px;padding:14px;box-shadow:var(--shadow);font-family:'Noto Sans Thai','DM Sans',sans-serif}
+.h-top{display:flex;gap:12px;align-items:center}
+.h-ic{width:48px;height:48px;border-radius:14px;background:#e0f2f1;display:grid;place-items:center;font-size:24px;flex-shrink:0}
+.h-name{font-size:16px;font-weight:600;color:var(--dark)}
+.h-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.h-badge{margin-left:auto;font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;background:#e0f7fa;color:var(--teal-dark);flex-shrink:0}
+.h-badge.off{background:#eee;color:#777}.h-badge.full{background:#fff3e0;color:#c77700}
+.h-bar{height:8px;border-radius:4px;background:#eef0f3;margin:12px 0 6px;overflow:hidden}
+.h-bar i{display:block;height:100%;background:var(--teal);border-radius:4px}
+.h-cnt{display:flex;justify-content:space-between;font-size:13px;color:var(--dark)}
+.h-btns{display:flex;gap:8px;margin-top:12px}
+.h-btns button{flex:1;padding:10px 6px;border-radius:10px;border:1.5px solid var(--teal);background:#fff;color:var(--teal);font:600 13px 'Noto Sans Thai','DM Sans',sans-serif;cursor:pointer}
+.h-btns button.dg{border-color:#e57373;color:#d32f2f}
+.h-empty{text-align:center;color:var(--muted);padding:36px 20px;font:14px 'Noto Sans Thai',sans-serif}
+.h-lbl{font:600 13px 'Noto Sans Thai',sans-serif;color:var(--dark);margin:12px 0 6px}
+.h-person{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font:14px 'Noto Sans Thai',sans-serif}
+.h-av{width:34px;height:34px;border-radius:50%;background:#b2ebf2;display:grid;place-items:center;font-size:16px}
+#createModal .modal,#partModal .modal{max-height:88%;overflow-y:auto}
+
+/* ── Detail ── */
+.dt{position:absolute;inset:0;z-index:60;background:var(--white);display:none;flex-direction:column;font-family:'Noto Sans Thai','DM Sans',sans-serif}
+.dt.open{display:flex}
+.dt-scroll{flex:1;overflow-y:auto;padding-bottom:16px}
+.dt-img{height:240px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:80px;position:relative}
+.dt-back{position:absolute;top:calc(12px + var(--safe-top));left:12px;width:40px;height:40px;border-radius:50%;border:0;background:#fffe;box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:20px;cursor:pointer}
+.dt-body{padding:18px 18px 0;margin-top:-18px;background:var(--white);border-radius:20px 20px 0 0;position:relative}
+.dt-name{font-size:22px;font-weight:700;color:var(--dark)}
+.dt-meta{display:flex;flex-wrap:wrap;gap:8px 16px;color:var(--muted);font-size:14px;margin:8px 0 14px}
+.dt-meta span{display:flex;gap:5px;align-items:center}
+.dt-box{background:var(--bg);border-radius:14px;padding:14px;margin-bottom:14px}
+.dt-h{font-weight:600;font-size:15px;color:var(--dark);margin-bottom:6px}
+.dt-p{font-size:15px;line-height:1.65;color:var(--text)}
+.dt-foot{display:flex;gap:10px;padding:12px 16px calc(12px + var(--safe-bottom));border-top:1px solid var(--border);background:var(--white)}
+.dt-foot button{flex:1;padding:14px;border-radius:12px;font:600 16px 'Noto Sans Thai','DM Sans',sans-serif;cursor:pointer}
+.dt-nav{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}
+.dt-join{background:#111;color:#fff;border:0}
+.dt-join.booked{background:var(--teal)}.dt-join:disabled{background:#ccc;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -450,7 +499,7 @@ body {
     <div class="nav-item" onclick="goMap()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
     <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div>
     <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <div class="nav-item" onclick="goHost()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
   </div>
 </div>
 
@@ -512,9 +561,64 @@ body {
     <div class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="var(--teal)" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="var(--teal)" stroke-width="2"/><line x1="3" y1="10" x2="21" y2="10" stroke="var(--teal)" stroke-width="2"/></svg><div class="nav-dot"></div></div>
     <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div>
     <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <div class="nav-item" onclick="goHost()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
   </div>
 </div>
+
+<!-- ════ SCREEN 4 — HOST ════ -->
+<div class="screen hidden" id="screenHost">
+  <div class="status-bar"><span>9:41</span></div>
+  <div class="h-head">
+    <div><div class="h-title">ฝั่งเจ้าภาพ</div><div class="h-sub">จัดการกิจกรรมของคุณ</div></div>
+    <button class="h-add" onclick="openCreate()">+ สร้างกิจกรรม</button>
+  </div>
+  <div class="h-scroll">
+    <div class="h-stats" id="hStats"></div>
+    <div id="hList"></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+    <div class="nav-item" onclick="goMap()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+    <div class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2z"/></svg><div class="nav-dot"></div></div>
+  </div>
+</div>
+
+<!-- CREATE MODAL -->
+<div class="modal-overlay" id="createModal" onclick="if(event.target===this)closeModals()">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">สร้างกิจกรรมใหม่</div><span class="modal-x" onclick="closeModals()">✕</span></div>
+    <div class="h-lbl">ชื่อกิจกรรม</div>
+    <input class="input-field" id="hName" placeholder="เช่น รำไทเก็กยามเช้า" style="margin-bottom:0">
+    <div class="h-lbl">ประเภท</div>
+    <div class="fopts" id="hCatF">
+      <div class="fopt active" data-v="exercise" onclick="hSelCat(this)">🏃 ออกกำลังกาย</div>
+      <div class="fopt" data-v="craft" onclick="hSelCat(this)">🧶 งานฝีมือ</div>
+      <div class="fopt" data-v="garden" onclick="hSelCat(this)">🌻 ทำสวน</div>
+      <div class="fopt" data-v="repair" onclick="hSelCat(this)">🔧 ซ่อมแซม</div>
+    </div>
+    <div class="h-lbl">จำนวนที่รับ (คน)</div>
+    <input class="input-field" id="hCap" type="number" min="1" max="500" value="20" style="margin-bottom:0">
+    <div class="h-lbl">วันและเวลา</div>
+    <input class="input-field" id="hWhen" type="datetime-local" style="margin-bottom:0">
+    <div class="h-lbl">สถานที่</div>
+    <input class="input-field" id="hPlace" placeholder="เช่น สวนสาธารณะหาดใหญ่" style="margin-bottom:0">
+    <div class="h-lbl">รายละเอียด (ไม่บังคับ)</div>
+    <textarea class="input-field" id="hDesc" rows="3" maxlength="300" placeholder="เล่าให้ผู้เข้าร่วมรู้ว่าจะได้ทำอะไร" style="margin-bottom:0;resize:none"></textarea>
+    <div class="errtxt" id="hErr" style="color:#d32f2f;font-size:13px;min-height:20px;margin:8px 0 4px"></div>
+    <button class="btn-apply" onclick="createAct()">สร้างกิจกรรม</button>
+  </div>
+</div>
+
+<!-- PARTICIPANTS MODAL -->
+<div class="modal-overlay" id="partModal" onclick="if(event.target===this)closeModals()">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title" id="partTitle">ผู้เข้าร่วม</div><span class="modal-x" onclick="closeModals()">✕</span></div>
+    <div id="partList"></div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="dt" id="detail"><div class="dt-scroll" id="dtBody"></div><div class="dt-foot" id="dtFoot"></div></div>
 
 <!-- FILTER MODAL -->
 <div class="modal-overlay" id="filterModal" onclick="if(event.target===this)closeFilter()">
@@ -578,9 +682,11 @@ function goHome(){
   document.getElementById('screenSignin').classList.add('slide-left');
   document.getElementById('screenHome').classList.remove('hidden');
   document.getElementById('screenMap').classList.add('hidden');
+  document.getElementById('screenHost').classList.add('hidden');
 }
 function goMap(){
   document.getElementById('screenHome').classList.add('hidden');
+  document.getElementById('screenHost').classList.add('hidden');
   document.getElementById('screenMap').classList.remove('hidden');
   if(!mapInited){ initMap(); mapInited=true; }
 }
@@ -600,6 +706,7 @@ function initMap(){
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
   buildMarkers(acts);
   renderCards(acts);
+  document.getElementById('resCount').textContent=acts.length+' results';
 }
 
 function makeIcon(a,sel){
@@ -750,9 +857,9 @@ const BG={exercise:'linear-gradient(135deg,#e0f2f1,#b2dfdb)',craft:'linear-gradi
 function renderCards(list){
   document.getElementById('cardsScroll').innerHTML=list.map(a=>`
     <div class="result-card" id="card-${a.id}" onclick="pickAct(${a.id})">
-      <div class="card-img" style="background:${PHOTO[a.id]?`url(${PHOTO[a.id]}) center/cover`:(BG[a.cat]||'linear-gradient(135deg,#e3f2fd,#bbdefb)')}">${PHOTO[a.id]?'':a.e}${a.feat?'<div class="card-badge">⭐ แนะนำ</div>':''}</div>
+      <div class="card-img" onclick="event.stopPropagation();openDetail(${a.id})" style="background:${PHOTO[a.id]?`url(${PHOTO[a.id]}) center/cover`:(BG[a.cat]||'linear-gradient(135deg,#e3f2fd,#bbdefb)')}">${PHOTO[a.id]?'':a.e}${a.feat?'<div class="card-badge">⭐ แนะนำ</div>':''}</div>
       <div class="card-body">
-        <div class="card-name">${a.name} <span style="font-size:12px;color:var(--muted);font-weight:400">(${a.en})</span></div>
+        <div class="card-name" onclick="event.stopPropagation();openDetail(${a.id})" style="text-decoration:underline;text-decoration-color:#cfe9ec;text-underline-offset:3px">${a.name} <span style="font-size:12px;color:var(--muted);font-weight:400">(${a.en})</span></div>
         <div class="card-meta">
           <span><svg viewBox="0 0 24 24" fill="#f4a338"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>${a.r} (${a.rv})</span>
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${a.dist} km</span>
@@ -762,7 +869,7 @@ function renderCards(list){
           <div class="slots">${a.fill+(booked.has(a.id)?1:0)}<small>/${a.tot}</small></div>
           <div class="card-btns">
             <button class="btn-nav" onclick="event.stopPropagation();navigateTo(${a.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3,11 22,2 13,21 11,13 3,11"/></svg>นำทาง</button>
-            <button class="btn-sel ${booked.has(a.id)?'booked':''}" onclick="event.stopPropagation();bookAct(${a.id})">${booked.has(a.id)?'✓ จองแล้ว':'Select'}</button>
+            <button class="btn-sel ${booked.has(a.id)?'booked':''}" onclick="event.stopPropagation();bookAct(${a.id})">${a.closed?'ปิดรับ':booked.has(a.id)?'✓ จองแล้ว':'Select'}</button>
           </div>
         </div>
       </div>
@@ -770,9 +877,14 @@ function renderCards(list){
   `).join('');
 }
 function bookAct(id){
+  const a=acts.find(x=>x.id===id); if(!a) return;
+  if(!booked.has(id)){
+    if(a.closed){ toast('กิจกรรมนี้ปิดรับสมัครแล้ว'); return; }
+    if(a.fill>=a.tot){ toast('ที่นั่งเต็มแล้ว'); return; }
+  }
   booked.has(id)?booked.delete(id):booked.add(id);
   toast(booked.has(id)?'🎉 จองสำเร็จ!':'ยกเลิกการจองแล้ว');
-  renderCards(filtered);
+  renderCards(filtered); if(detailId===id) renderDetail(); persistBook(id);
 }
 
 // ══════════════════════════════
@@ -795,6 +907,167 @@ function toast(msg){
 // ══════════════════════════════
 //  SERVICE WORKER
 // ══════════════════════════════
+
+// ══════════════════════════════
+//  HOST SIDE
+// ══════════════════════════════
+const NAMES=['คุณสมศรี ใจดี','คุณวิชัย แสงทอง','คุณมาลี รักสุข','คุณประสิทธิ์ ขยัน','คุณบุญเรือน สุขใจ','คุณสมหมาย มั่นคง','คุณนิภา ศรีสุข','คุณอำนวย พูนผล'];
+const CATE={exercise:'🏃',craft:'🧶',garden:'🌻',repair:'🔧'};
+let hCat='exercise',hDelId=null;
+acts.forEach(a=>{ if(a.id===1||a.id===3) a.owner=true; });
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const joinedOf=a=>a.fill+(booked.has(a.id)?1:0);
+function goHost(){
+  ['screenHome','screenMap'].forEach(i=>document.getElementById(i).classList.add('hidden'));
+  document.getElementById('screenHost').classList.remove('hidden');
+  renderHost();
+}
+function hostChanged(){ if(mapInited) applyAll(); renderHost(); }
+function renderHost(){
+  const mine=acts.filter(a=>a.owner);
+  const people=mine.reduce((s,a)=>s+joinedOf(a),0), open=mine.filter(a=>!a.closed&&joinedOf(a)<a.tot).length;
+  document.getElementById('hStats').innerHTML=
+    `<div class="h-stat"><b>${mine.length}</b><span>กิจกรรม</span></div><div class="h-stat"><b>${people}</b><span>ผู้เข้าร่วม</span></div><div class="h-stat"><b>${open}</b><span>เปิดรับอยู่</span></div>`;
+  document.getElementById('hList').innerHTML=mine.length?mine.map(a=>{
+    const n=joinedOf(a),full=n>=a.tot,pct=Math.min(100,Math.round(n/a.tot*100));
+    const st=a.closed?['off','ปิดรับ']:full?['full','เต็มแล้ว']:['','เปิดรับ'];
+    return `<div class="h-card"><div class="h-top"><div class="h-ic">${a.e}</div>
+      <div style="min-width:0"><div class="h-name">${esc(a.name)}</div><div class="h-meta">${a.when?esc(a.when)+' · ':''}${a.place?esc(a.place):'หาดใหญ่'}</div></div>
+      <span class="h-badge ${st[0]}">${st[1]}</span></div>
+      <div class="h-bar"><i style="width:${pct}%"></i></div>
+      <div class="h-cnt"><span>${n}/${a.tot} คน</span><span>ว่าง ${Math.max(0,a.tot-n)}</span></div>
+      <div class="h-btns"><button onclick="openPart(${a.id})">ผู้เข้าร่วม</button>
+      <button onclick="hToggle(${a.id})">${a.closed?'เปิดรับ':'ปิดรับ'}</button>
+      <button class="dg" onclick="hDelete(${a.id})">${hDelId===a.id?'ยืนยันลบ?':'ลบ'}</button></div></div>`;
+  }).join(''):'<div class="h-empty">ยังไม่มีกิจกรรม กด "+ สร้างกิจกรรม" เพื่อเริ่มต้น</div>';
+}
+function hToggle(id){ const a=acts.find(x=>x.id===id); a.closed=!a.closed; toast(a.closed?'ปิดรับสมัครแล้ว':'เปิดรับสมัครแล้ว'); hostChanged(); persistClosed(a); }
+function hDelete(id){
+  if(hDelId!==id){ hDelId=id; renderHost(); setTimeout(()=>{ if(hDelId===id){ hDelId=null; renderHost(); } },3000); return; }
+  acts.splice(acts.findIndex(x=>x.id===id),1); hDelId=null; toast('ลบกิจกรรมแล้ว'); hostChanged(); persistDelete(id);
+}
+function openPart(id){
+  const a=acts.find(x=>x.id===id), n=joinedOf(a), show=Math.min(n,NAMES.length);
+  document.getElementById('partTitle').textContent='ผู้เข้าร่วม · '+a.name;
+  document.getElementById('partList').innerHTML=n?
+    NAMES.slice(0,show).map(x=>`<div class="h-person"><div class="h-av">👤</div>${x}</div>`).join('')+
+    (n>show?`<div class="h-meta" style="padding:10px 0;font-family:'Noto Sans Thai',sans-serif">และอีก ${n-show} คน (รายชื่อตัวอย่าง)</div>`:'')
+    :'<div class="h-empty">ยังไม่มีผู้เข้าร่วม</div>';
+  document.getElementById('partModal').classList.add('open');
+}
+function openCreate(){ document.getElementById('hErr').textContent=''; document.getElementById('createModal').classList.add('open'); }
+function closeModals(){ document.getElementById('createModal').classList.remove('open'); document.getElementById('partModal').classList.remove('open'); }
+function hSelCat(el){ document.querySelectorAll('#hCatF .fopt').forEach(o=>o.classList.remove('active')); el.classList.add('active'); hCat=el.dataset.v; }
+function createAct(){
+  const name=document.getElementById('hName').value.trim(), cap=parseInt(document.getElementById('hCap').value,10);
+  const when=document.getElementById('hWhen').value, place=document.getElementById('hPlace').value.trim();
+  const err=document.getElementById('hErr');
+  if(!name){ err.textContent='กรุณากรอกชื่อกิจกรรม'; return; }
+  if(!(cap>0)){ err.textContent='จำนวนที่รับต้องมากกว่า 0'; return; }
+  const lat=7.0084+(Math.random()-.5)*0.014, lng=100.4747+(Math.random()-.5)*0.014;
+  const a={id:Math.max(0,...acts.map(x=>x.id))+1,desc:document.getElementById('hDesc').value.trim(),name,en:'Hosted',lat,lng,e:CATE[hCat],cat:hCat,r:0,rv:0,
+    dist:myLat?+haversine(myLat,myLng,lat,lng).toFixed(1):1.0,tot:cap,fill:0,feat:false,owner:true,
+    place,when:when?new Date(when).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'}):''};
+  ['hName','hPlace','hWhen','hDesc'].forEach(i=>document.getElementById(i).value='');
+  closeModals(); persistCreate(a); return; toast('สร้างกิจกรรมแล้ว ผู้ใช้จะเห็นบนแผนที่'); hostChanged();
+}
+
+
+// ══════════════════════════════
+//  DATA LAYER  (Supabase ถ้ากรอกค่าด้านล่าง ไม่เช่นนั้นเก็บในเบราว์เซอร์)
+// ══════════════════════════════
+const DB={ url:'https://rfwanaiwbvszydyokrow.supabase.co/rest/v1/', key:'sb_publishable_tzyB7llUToMGEqE0pXUxRg_MiShA1NY' };   // ← ใส่ Project URL และ anon key ของ Supabase ที่นี่ (ดู supabase-setup.sql)
+const useDB=()=>!!(DB.url&&DB.key);
+const LS={ get(k){ try{return JSON.parse(localStorage.getItem(k))}catch(e){return null} }, set(k,v){ try{localStorage.setItem(k,JSON.stringify(v))}catch(e){} } };
+let UID=LS.get('wc_uid'); if(!UID){ UID='u'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); LS.set('wc_uid',UID); }
+async function sb(path,opt={}){
+  const r=await fetch(DB.url+'/rest/v1/'+path,{...opt,headers:{apikey:DB.key,...(DB.key.startsWith('eyJ')?{Authorization:'Bearer '+DB.key}:{}),'Content-Type':'application/json',...(opt.headers||{})}});
+  if(!r.ok) throw new Error(await r.text());
+  return r.status===204?null:r.json();
+}
+const CAT_DESC={exercise:'ออกกำลังกายเบา ๆ ร่วมกับเพื่อนวัยเดียวกัน เหมาะกับทุกระดับ มีผู้นำกิจกรรมคอยแนะนำ',craft:'ทำงานฝีมือด้วยกัน แลกเปลี่ยนเทคนิค และได้ชิ้นงานกลับบ้าน',garden:'ปลูกและดูแลพืชผักสวนครัว เรียนรู้การทำสวนจากผู้มีประสบการณ์',repair:'เรียนรู้การซ่อมแซมของใช้ในบ้านเบื้องต้นจากอาสาสมัคร'};
+const SAMPLE_N=6;
+let detailId=null;
+
+function refreshUI(){
+  if(mapInited) applyAll();
+  if(!document.getElementById('screenHost').classList.contains('hidden')) renderHost();
+  if(detailId!==null){ if(acts.find(x=>x.id===detailId)) renderDetail(); else closeDetail(); }
+}
+async function loadData(){
+  try{
+    if(useDB()){
+      const [rows,bk]=await Promise.all([sb('activities?select=*&order=id'),sb('bookings?select=activity_id,user_id')]);
+      booked=new Set(bk.filter(b=>b.user_id===UID).map(b=>b.activity_id));
+      const cnt={}; bk.forEach(b=>{ if(b.user_id!==UID) cnt[b.activity_id]=(cnt[b.activity_id]||0)+1; });
+      acts.length=0;
+      rows.forEach(r=>acts.push({id:r.id,name:r.name,en:r.en||'',lat:r.lat,lng:r.lng,e:r.e||'📍',cat:r.cat,r:+r.r||0,rv:r.rv||0,
+        dist:myLat?+haversine(myLat,myLng,r.lat,r.lng).toFixed(1):+r.dist||1,tot:r.tot,fill:(r.base_fill||0)+(cnt[r.id]||0),
+        feat:!!r.feat,owner:r.owner_id===UID,place:r.place||'',when:r.when_text||'',desc:r.descr||'',closed:!!r.closed}));
+    }else{
+      const s=LS.get('wc_state')||{};
+      (s.extra||[]).forEach(x=>{ if(!acts.find(a=>a.id===x.id)) acts.push(x); });
+      (s.deleted||[]).forEach(id=>{ const i=acts.findIndex(a=>a.id===id); if(i>=0) acts.splice(i,1); });
+      (s.closed||[]).forEach(id=>{ const a=acts.find(x=>x.id===id); if(a) a.closed=true; });
+      booked=new Set(s.booked||[]);
+    }
+    refreshUI();
+  }catch(e){ console.warn('loadData',e); toast('โหลดข้อมูลจากเซิร์ฟเวอร์ไม่สำเร็จ'); }
+}
+function saveLocal(){
+  LS.set('wc_state',{extra:acts.filter(a=>a.id>SAMPLE_N),closed:acts.filter(a=>a.closed).map(a=>a.id),
+    deleted:[1,2,3,4,5,6].filter(id=>!acts.find(a=>a.id===id)),booked:[...booked]});
+}
+async function persistCreate(a){
+  if(!useDB()){ acts.push(a); saveLocal(); hostChanged(); toast('สร้างกิจกรรมแล้ว ผู้ใช้จะเห็นบนแผนที่'); return; }
+  try{
+    await sb('activities',{method:'POST',body:JSON.stringify({name:a.name,en:'Hosted',lat:a.lat,lng:a.lng,e:a.e,cat:a.cat,tot:a.tot,base_fill:0,owner_id:UID,place:a.place,when_text:a.when,descr:a.desc})});
+    toast('สร้างกิจกรรมแล้ว ผู้ใช้ทุกคนจะเห็น'); await loadData();
+  }catch(e){ toast('สร้างกิจกรรมไม่สำเร็จ'); console.warn(e); }
+}
+async function persistClosed(a){
+  if(!useDB()) return saveLocal();
+  try{ await sb('activities?id=eq.'+a.id,{method:'PATCH',body:JSON.stringify({closed:!!a.closed})}); }catch(e){ a.closed=!a.closed; refreshUI(); toast('บันทึกไม่สำเร็จ'); }
+}
+async function persistDelete(id){
+  if(!useDB()) return saveLocal();
+  try{ await sb('activities?id=eq.'+id,{method:'DELETE'}); }catch(e){ toast('ลบไม่สำเร็จ'); loadData(); }
+}
+async function persistBook(id){
+  if(!useDB()) return saveLocal();
+  try{
+    if(booked.has(id)) await sb('bookings',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates'},body:JSON.stringify({activity_id:id,user_id:UID})});
+    else await sb(`bookings?activity_id=eq.${id}&user_id=eq.${UID}`,{method:'DELETE'});
+    if(!document.getElementById('screenHost').classList.contains('hidden')) renderHost();
+  }catch(e){ booked.has(id)?booked.delete(id):booked.add(id); renderCards(filtered); if(detailId===id) renderDetail(); toast('บันทึกการจองไม่สำเร็จ'); }
+}
+
+// ══════════════════════════════
+//  ACTIVITY DETAIL
+// ══════════════════════════════
+function openDetail(id){ detailId=id; renderDetail(); document.getElementById('detail').classList.add('open'); }
+function closeDetail(){ detailId=null; document.getElementById('detail').classList.remove('open'); }
+function renderDetail(){
+  const a=acts.find(x=>x.id===detailId); if(!a) return;
+  const n=joinedOf(a), left=Math.max(0,a.tot-n), pct=Math.min(100,Math.round(n/a.tot*100)), mine=booked.has(a.id);
+  const img=PHOTO[a.id]?`style="background-image:url(${PHOTO[a.id]})"`:`style="background:${BG[a.cat]||'linear-gradient(135deg,#e3f2fd,#bbdefb)'}"`;
+  document.getElementById('dtBody').innerHTML=
+   `<div class="dt-img" ${img}><button class="dt-back" onclick="closeDetail()" aria-label="ย้อนกลับ">←</button>${PHOTO[a.id]?'':a.e}</div>
+    <div class="dt-body"><div class="dt-name">${esc(a.name)}${a.en&&a.en!=='Hosted'?` <span style="font-size:14px;color:var(--muted);font-weight:400">(${esc(a.en)})</span>`:''}</div>
+    <div class="dt-meta"><span>⭐ ${a.rv?a.r+' ('+a.rv+' รีวิว)':'ยังไม่มีรีวิว'}</span><span>📍 ${a.dist} km</span>${a.when?`<span>🕒 ${esc(a.when)}</span>`:''}${a.place?`<span>🏠 ${esc(a.place)}</span>`:''}</div>
+    <div class="dt-box"><div style="display:flex;justify-content:space-between;font-size:15px"><b>${n}/${a.tot} คน</b><span style="color:var(--muted)">${a.closed?'ปิดรับสมัคร':left?'ว่าง '+left+' ที่':'เต็มแล้ว'}</span></div>
+      <div class="h-bar" style="margin:10px 0 0"><i style="width:${pct}%"></i></div></div>
+    <div class="dt-h">รายละเอียดกิจกรรม</div><div class="dt-p">${esc(a.desc||CAT_DESC[a.cat]||'')}</div></div>`;
+  const dis=!mine&&(a.closed||left===0);
+  document.getElementById('dtFoot').innerHTML=
+   `<button class="dt-nav" onclick="detailNav(${a.id})">🧭 นำทาง</button>
+    <button class="dt-join ${mine?'booked':''}" ${dis?'disabled':''} onclick="bookAct(${a.id})">${mine?'✓ จองแล้ว (กดยกเลิก)':dis?(a.closed?'ปิดรับ':'เต็มแล้ว'):'Select'}</button>`;
+}
+function detailNav(id){ closeDetail(); goMap(); setTimeout(()=>{ pickAct(id); navigateTo(id); },450); }
+
+loadData();
+if(useDB()) setInterval(()=>{ if(!document.hidden) loadData(); },15000);
+
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('/sw.js')
